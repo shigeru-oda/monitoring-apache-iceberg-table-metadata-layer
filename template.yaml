@@ -56,7 +56,7 @@ Resources:
             - glue:TagResource
             Resource: '*'
       Architectures:
-        - arm64
+        - x86_64
       Environment:
         Variables:
           CW_NAMESPACE: !Ref CWNamespace
