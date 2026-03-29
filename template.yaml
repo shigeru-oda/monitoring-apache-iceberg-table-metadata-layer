@@ -20,7 +20,7 @@ Resources:
     Properties:
       CodeUri: lambda/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Policies: 
         - CloudWatchPutMetricPolicy: {}
         - AWSLambdaBasicExecutionRole
@@ -53,9 +53,10 @@ Resources:
             - glue:GetTableVersions
             - glue:GetPartitions
             - glue:ListSessions
+            - glue:TagResource
             Resource: '*'
       Architectures:
-        - x86_64
+        - arm64
       Environment:
         Variables:
           CW_NAMESPACE: !Ref CWNamespace

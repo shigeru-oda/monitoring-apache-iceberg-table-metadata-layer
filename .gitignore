@@ -5,3 +5,4 @@ samconfig.toml
 .aws-sam
 .env.local.json
 events/my.event.json
+.venv
