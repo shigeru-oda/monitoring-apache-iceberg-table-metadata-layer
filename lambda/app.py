@@ -112,7 +112,7 @@ def send_files_metrics(glue_db_name, glue_table_name, snapshot,session_id):
     data_str = stmt_response["Statement"]["Output"]["Data"]["TextPlain"]
     logger.info(stmt_response)
     df = parse_spark_show_output(data_str)
-    df = df.applymap(int)
+    df = df.map(int)
     file_metrics = {
         "avg_record_count": df.iloc[0]["avg_record_count"],
         "max_record_count": df.iloc[0]["max_record_count"],
@@ -123,20 +123,24 @@ def send_files_metrics(glue_db_name, glue_table_name, snapshot,session_id):
     }
     logger.info("file_metrics=")
     logger.info(file_metrics)
-    # loop over file_metrics, use key as metric name and value as metric value
-    # loop over partition_metrics, use key as metric name and value as metric value
-    for metric_name, metric_value in file_metrics.items():     
+    
+    timestamp = datetime.fromtimestamp(snapshot.timestamp_ms / 1000.0, tz=timezone.utc)
+    metric_data = []
+    for metric_name, metric_value in file_metrics.items():
         logger.info(f"metric_name=files.{metric_name}, metric_value={metric_value.item()}")
-        send_custom_metric(
-            metric_name=f"files.{metric_name}",
-            dimensions=[
-                {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}
-            ],
-            value=metric_value.item(),
-            unit='Bytes' if "size" in metric_name else "Count",
-            namespace=os.getenv('CW_NAMESPACE'),
-            timestamp = snapshot.timestamp_ms,
-        )
+        metric_data.append({
+            'MetricName': f"files.{metric_name}",
+            'Dimensions': [{'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}],
+            'Value': metric_value.item(),
+            'Unit': 'Bytes' if "size" in metric_name else 'Count',
+            'Timestamp': timestamp,
+        })
+    
+    cloudwatch = boto3.client('cloudwatch')
+    cloudwatch.put_metric_data(
+        Namespace=os.getenv('CW_NAMESPACE'),
+        MetricData=metric_data
+    )
     
 
 def send_partition_metrics(glue_db_name, glue_table_name, snapshot,session_id):
@@ -171,49 +175,57 @@ def send_partition_metrics(glue_db_name, glue_table_name, snapshot,session_id):
     logger.info("partition_metrics=")
     logger.info(partition_metrics)
     
-    # loop over aggregated partition_metrics, use key as metric name and value as metric value
+    timestamp = datetime.fromtimestamp(snapshot.timestamp_ms / 1000.0, tz=timezone.utc)
+    cloudwatch = boto3.client('cloudwatch')
+    
+    # Batch send aggregated partition metrics
+    metric_data = []
     for metric_name, metric_value in partition_metrics.items():  
         logger.info(f"metric_name=partitions.{metric_name}, metric_value={metric_value.item()}")
-        send_custom_metric(
-            metric_name=f"partitions.{metric_name}",
-            dimensions=[
-                {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}
-            ],
-            value=metric_value.item(),
-            unit='Count',
-            namespace=os.getenv('CW_NAMESPACE'),
-            timestamp = snapshot.timestamp_ms,
-        )
+        metric_data.append({
+            'MetricName': f"partitions.{metric_name}",
+            'Dimensions': [{'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}],
+            'Value': metric_value.item(),
+            'Unit': 'Count',
+            'Timestamp': timestamp,
+        })
+    cloudwatch.put_metric_data(Namespace=os.getenv('CW_NAMESPACE'), MetricData=metric_data)
     
+    # Batch send per-partition metrics (max 1000 per call)
+    metric_data = []
     for index, row in df.iterrows():
         partition_name = row['partition']
         record_count = row['record_count']
         file_count = row['file_count']
         logger.info(f"partition_name={partition_name}, record_count={record_count}, file_count={file_count}")
         
-        send_custom_metric(
-            metric_name=f"partitions.record_count",
-            dimensions=[
+        metric_data.append({
+            'MetricName': 'partitions.record_count',
+            'Dimensions': [
                 {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"},
                 {'Name': 'partition_name', 'Value': partition_name}
             ],
-            value=int(record_count),
-            unit='Count',
-            namespace=os.getenv('CW_NAMESPACE'),
-            timestamp = snapshot.timestamp_ms,
-        )
+            'Value': int(record_count),
+            'Unit': 'Count',
+            'Timestamp': timestamp,
+        })
+        metric_data.append({
+            'MetricName': 'partitions.file_count',
+            'Dimensions': [
+                {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"},
+                {'Name': 'partition_name', 'Value': partition_name}
+            ],
+            'Value': int(file_count),
+            'Unit': 'Count',
+            'Timestamp': timestamp,
+        })
         
-        send_custom_metric(
-            metric_name=f"partitions.file_count",
-            dimensions=[
-                {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"},
-                {'Name': 'partition_name', 'Value': partition_name}
-            ],
-            value=int(file_count),
-            unit='Count',
-            namespace=os.getenv('CW_NAMESPACE'),
-            timestamp = snapshot.timestamp_ms,
-        )
+        if len(metric_data) >= 1000:
+            cloudwatch.put_metric_data(Namespace=os.getenv('CW_NAMESPACE'), MetricData=metric_data)
+            metric_data = []
+    
+    if metric_data:
+        cloudwatch.put_metric_data(Namespace=os.getenv('CW_NAMESPACE'), MetricData=metric_data)
 
 def get_all_sessions():
     sessions = []
@@ -295,8 +307,10 @@ def send_snapshot_metrics(glue_db_name, glue_table_name, snapshot_id, session_id
     metrics = [
         "added-data-files", "added-records", "changed-partition-count", 
         "total-records","total-data-files", "total-delete-files",
-        "added-files-size", "total-files-size", "added-position-deletes"
+        "added-files-size", "total-files-size", "added-position-deletes",
+        "deleted-records"
     ]
+    metric_data = []
     for metric in metrics:
         normalized_metric_name = metric.replace("-", "_")
         if snapshot["summary"].get(metric) is None:
@@ -304,16 +318,16 @@ def send_snapshot_metrics(glue_db_name, glue_table_name, snapshot_id, session_id
         metric_value = snapshot["summary"][metric]
         timestamp_ms = dt_to_ts(snapshot["committed_at"])
         logger.info(f"metric_name=snapshot.{normalized_metric_name}, value={metric_value}")
-        send_custom_metric(
-            metric_name=f"snapshot.{normalized_metric_name}",
-            dimensions=[
-                {'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}
-            ],
-            value=int(metric_value),
-            unit='Bytes' if "size" in normalized_metric_name else "Count",
-            namespace=os.getenv('CW_NAMESPACE'),
-            timestamp = timestamp_ms,
-        ) 
+        metric_data.append({
+            'MetricName': f"snapshot.{normalized_metric_name}",
+            'Dimensions': [{'Name': 'table_name', 'Value': f"{glue_db_name}.{glue_table_name}"}],
+            'Value': int(metric_value),
+            'Unit': 'Bytes' if "size" in normalized_metric_name else 'Count',
+            'Timestamp': datetime.fromtimestamp(timestamp_ms / 1000.0, tz=timezone.utc),
+        })
+    
+    cloudwatch = boto3.client('cloudwatch')
+    cloudwatch.put_metric_data(Namespace=os.getenv('CW_NAMESPACE'), MetricData=metric_data)
 
 # check if glue table is of iceberg format, return boolean
 def check_table_is_of_iceberg_format(event):

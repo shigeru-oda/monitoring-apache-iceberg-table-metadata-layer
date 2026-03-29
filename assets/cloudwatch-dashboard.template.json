@@ -1,6 +1,17 @@
 {
     "widgets": [
         {
+            "height": 1,
+            "width": 24,
+            "y": 0,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "# Table metrics",
+                "background": "transparent"
+            }
+        },
+        {
             "height": 6,
             "width": 6,
             "y": 1,
@@ -30,17 +41,6 @@
                     [ "{{ CW_NAMESPACE }}", "snapshot.total_records", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ]
                 ],
                 "region": "{{ REGION }}"
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 0,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "# Table metrics",
-                "background": "transparent"
             }
         },
         {
@@ -89,9 +89,93 @@
             }
         },
         {
+            "height": 6,
+            "width": 6,
+            "y": 7,
+            "x": 6,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "snapshot.added_files_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "{{ REGION }}",
+                "period": 300
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 7,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "snapshot.total_files_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ]
+                ],
+                "region": "{{ REGION }}",
+                "period": 300,
+                "title": "snapshot.total_files_size"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 7,
+            "x": 18,
+            "type": "metric",
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "snapshot.deleted_records", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ],
+                    [ ".", "snapshot.added_position_deletes", ".", "." ]
+                ],
+                "region": "{{ REGION }}",
+                "period": 300,
+                "title": "snapshot.deleted_records / added_position_deletes"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 13,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/Glue", "Number of bytes compacted", "TABLE_NAME", "{{ TABLENAME }}", "DATABASE_NAME", "{{ DBNAME }}" ]
+                ],
+                "region": "{{ REGION }}",
+                "title": "glue.numberOfBytesCompacted"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 13,
+            "x": 6,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "AWS/Glue", "Number of files compacted", "TABLE_NAME", "{{ TABLENAME }}", "DATABASE_NAME", "{{ DBNAME }}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "{{ REGION }}",
+                "title": "glue.numberOfFilesCompacted",
+                "period": 300
+            }
+        },
+        {
             "height": 1,
             "width": 24,
-            "y": 13,
+            "y": 19,
             "x": 0,
             "type": "text",
             "properties": {
@@ -102,7 +186,7 @@
         {
             "height": 6,
             "width": 12,
-            "y": 14,
+            "y": 20,
             "x": 0,
             "type": "metric",
             "properties": {
@@ -122,7 +206,7 @@
         {
             "height": 6,
             "width": 12,
-            "y": 14,
+            "y": 20,
             "x": 12,
             "type": "metric",
             "properties": {
@@ -139,242 +223,45 @@
             }
         },
         {
-            "height": 1,
-            "width": 24,
-            "y": 32,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "# Files metrics",
-                "background": "transparent"
-            }
-        },
-        {
-            "height": 5,
+            "height": 6,
             "width": 12,
-            "y": 33,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "sparkline": true,
-                "view": "singleValue",
-                "metrics": [
-                    [ "{{ CW_NAMESPACE }}", "files.min_record_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ],
-                    [ ".", "files.max_record_count", ".", "." ],
-                    [ ".", "files.avg_record_count", ".", "." ]
-                ],
-                "region": "{{ REGION }}"
-            }
-        },
-        {
-            "height": 5,
-            "width": 12,
-            "y": 33,
-            "x": 12,
-            "type": "metric",
-            "properties": {
-                "sparkline": true,
-                "view": "singleValue",
-                "metrics": [
-                    [ "{{ CW_NAMESPACE }}", "files.min_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ],
-                    [ "{{ CW_NAMESPACE }}", "files.max_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ],
-                    [ "{{ CW_NAMESPACE }}", "files.avg_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ]
-                ],
-                "region": "{{ REGION }}",
-                "period": 300,
-                "liveData": false
-            }
-        },
-        {
-            "height": 6,
-            "width": 6,
-            "y": 7,
-            "x": 12,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/Glue", "Number of bytes compacted",  "TABLE_NAME", "{{ TABLENAME }}", "DATABASE_NAME", "{{ DBNAME }}" ]
-                ],
-                "region": "{{ REGION }}",
-                "title": "glue.numberOfBytesCompacted"
-            }
-        },
-        {
-            "height": 6,
-            "width": 6,
-            "y": 7,
-            "x": 18,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ "AWS/Glue", "Number of files compacted", "TABLE_NAME", "{{ TABLENAME }}", "DATABASE_NAME", "{{ DBNAME }}" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "{{ REGION }}",
-                "title": "glue.numberOfFilesCompacted",
-                "period": 300
-            }
-        },
-        {
-            "height": 6,
-            "width": 6,
-            "y": 20,
-            "x": 18,
-            "type": "metric",
-            "properties": {
-                "view": "pie",
-                "stacked": false,
-                "metrics": [
-                    [ "{{ CW_NAMESPACE }}", "partitions.file_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", "partition_name", "{A, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 9}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 9}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 9}", { "region": "{{ REGION }}" } ]
-                ],
-                "region": "{{ REGION }}",
-                "period": 300,
-                "legend": {
-                    "position": "right"
-                },
-                "labels": {
-                    "visible": false
-                },
-                "liveData": true
-            }
-        },
-        {
-            "height": 6,
-            "width": 6,
             "y": 26,
-            "x": 18,
-            "type": "metric",
-            "properties": {
-                "view": "pie",
-                "stacked": false,
-                "metrics": [
-                    [ "{{ CW_NAMESPACE }}", "partitions.record_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", "partition_name", "{A, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{A, 9}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{B, 9}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 0}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 1}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 10}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 11}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 12}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 13}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 14}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 15}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 2}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 3}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 4}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 5}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 6}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 7}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 8}", { "region": "{{ REGION }}" } ],
-                    [ "...", "{C, 9}", { "region": "{{ REGION }}" } ]
-                ],
-                "region": "{{ REGION }}",
-                "period": 300,
-                "legend": {
-                    "position": "right"
-                },
-                "liveData": true
-            }
-        },
-        {
-            "height": 6,
-            "width": 6,
-            "y": 7,
-            "x": 6,
+            "x": 0,
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "{{ CW_NAMESPACE }}", "snapshot.added_files_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ]
+                    [ "{{ CW_NAMESPACE }}", "partitions.skew_record_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ],
+                    [ ".", "partitions.deviation_record_count", ".", "." ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
                 "region": "{{ REGION }}",
-                "period": 300
+                "period": 300,
+                "title": "partitions.skew / deviation (record_count)"
+            }
+        },
+        {
+            "height": 6,
+            "width": 12,
+            "y": 26,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "partitions.skew_file_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ],
+                    [ ".", "partitions.deviation_file_count", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "{{ REGION }}",
+                "period": 300,
+                "title": "partitions.skew / deviation (file_count)"
             }
         },
         {
             "height": 6,
             "width": 11,
-            "y": 20,
+            "y": 32,
             "x": 0,
             "type": "metric",
             "properties": {
@@ -392,7 +279,7 @@
         {
             "height": 6,
             "width": 7,
-            "y": 20,
+            "y": 32,
             "x": 11,
             "type": "metric",
             "properties": {
@@ -414,8 +301,31 @@
         },
         {
             "height": 6,
+            "width": 6,
+            "y": 32,
+            "x": 18,
+            "type": "metric",
+            "properties": {
+                "view": "pie",
+                "stacked": false,
+                "metrics": [
+                    [ { "expression": "SELECT AVG(\"partitions.file_count\") FROM \"{{ CW_NAMESPACE }}\" GROUP BY partition_name", "label": "", "id": "q1", "region": "{{ REGION }}" } ]
+                ],
+                "region": "{{ REGION }}",
+                "period": 300,
+                "legend": {
+                    "position": "right"
+                },
+                "labels": {
+                    "visible": false
+                },
+                "title": "partitions.file_count distribution"
+            }
+        },
+        {
+            "height": 6,
             "width": 11,
-            "y": 26,
+            "y": 38,
             "x": 0,
             "type": "metric",
             "properties": {
@@ -433,7 +343,7 @@
         {
             "height": 6,
             "width": 7,
-            "y": 26,
+            "y": 38,
             "x": 11,
             "type": "metric",
             "properties": {
@@ -453,12 +363,74 @@
                     "stickySummary": true,
                     "showTimeSeriesData": true,
                     "layout": "horizontal"
-                },
-                "yAxis": {
-                    "left": {
-                        "showUnits": true
-                    }
                 }
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 38,
+            "x": 18,
+            "type": "metric",
+            "properties": {
+                "view": "pie",
+                "stacked": false,
+                "metrics": [
+                    [ { "expression": "SELECT AVG(\"partitions.record_count\") FROM \"{{ CW_NAMESPACE }}\" GROUP BY partition_name", "label": "", "id": "q1", "region": "{{ REGION }}" } ]
+                ],
+                "region": "{{ REGION }}",
+                "period": 300,
+                "legend": {
+                    "position": "right"
+                },
+                "title": "partitions.record_count distribution"
+            }
+        },
+        {
+            "height": 1,
+            "width": 24,
+            "y": 44,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "# Files metrics",
+                "background": "transparent"
+            }
+        },
+        {
+            "height": 5,
+            "width": 12,
+            "y": 45,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "sparkline": true,
+                "view": "singleValue",
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "files.min_record_count", "table_name", "{{ DBNAME }}.{{ TABLENAME }}" ],
+                    [ ".", "files.max_record_count", ".", "." ],
+                    [ ".", "files.avg_record_count", ".", "." ]
+                ],
+                "region": "{{ REGION }}"
+            }
+        },
+        {
+            "height": 5,
+            "width": 12,
+            "y": 45,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "sparkline": true,
+                "view": "singleValue",
+                "metrics": [
+                    [ "{{ CW_NAMESPACE }}", "files.min_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ],
+                    [ "{{ CW_NAMESPACE }}", "files.max_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ],
+                    [ "{{ CW_NAMESPACE }}", "files.avg_file_size", "table_name", "{{ DBNAME }}.{{ TABLENAME }}", { "region": "{{ REGION }}" } ]
+                ],
+                "region": "{{ REGION }}",
+                "period": 300,
+                "liveData": false
             }
         }
     ]
