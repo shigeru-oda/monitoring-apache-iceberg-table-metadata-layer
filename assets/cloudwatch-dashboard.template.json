@@ -316,9 +316,6 @@
                 "legend": {
                     "position": "right"
                 },
-                "labels": {
-                    "visible": false
-                },
                 "title": "partitions.file_count distribution"
             }
         },
