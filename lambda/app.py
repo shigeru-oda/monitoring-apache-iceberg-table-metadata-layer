@@ -357,6 +357,11 @@ def lambda_handler(event, context):
     catalog = GlueCatalog(glue_db_name)
     table = catalog.load_table((glue_db_name, glue_table_name))
     logger.info(f"current snapshot id={table.metadata.current_snapshot_id}")
+    
+    if table.metadata.current_snapshot_id is None:
+        logger.info("No snapshot exists yet (table may be empty), skipping metrics generation")
+        return
+    
     snapshot = table.metadata.snapshot_by_id(table.metadata.current_snapshot_id)
     logger.info("Using glue IS to produce metrics")
     session_id = create_or_reuse_glue_session()
